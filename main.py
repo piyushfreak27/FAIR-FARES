@@ -95,13 +95,11 @@ def send_ticket(bus: str, start: str, end: str, fare: int, email: str) -> None:
                 "bus": bus,
                 "start": start,
                 "end": end,
-                "fare": fare,
+                "fare": str(fare),
             },
             "template": "DJRV8MJGKRMQG8MSRYH3T8S38A1R",
         }
     )
-
-    return OTP
 
 
 def ticket_reservation():
