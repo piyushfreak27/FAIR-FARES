@@ -26,13 +26,11 @@ def menu():
     console.print("02) Adding new bus detailS", style="blue")
     console.print("03) Schedule of all Buses", style="blue")
     console.print("04) Bus Enquiry", style="blue")
-    console.print("05) Fare of SKC001", style="blue")
-    console.print("06) Fare of SKC002", style="blue")
-    console.print("07) Cancel bus", style="blue")
-    console.print("08) Update fare of Bus", style="blue")
-    console.print("09) Ticket Reservation", style="blue")
-    console.print("10) Know more about this Project", style="blue")
-    console.print("11) Quit", style="blue")
+    console.print("05) Cancel bus", style="blue")
+    console.print("06) Update fare of Bus", style="blue")
+    console.print("07) Ticket Reservation", style="blue")
+    console.print("08) Know more about this Project", style="blue")
+    console.print("09) Quit", style="blue")
 
 
 def divider():
@@ -82,18 +80,55 @@ def schedule():
     print(df[["BusNo.", "Departure", "Arrival"]])
 
 
-def SKC001_fare():
-    global console
-    console.print("[yellow]show fares of SKC001 bus[/]")
-    df = pd.read_csv("./data/SKC001.csv")
-    print(df[[]])
+def send_ticket(bus: str, start: str, end: str, fare: int, email: str) -> None:
+    from trycourier import Courier
+
+    atk = "pk_test_08Q6VNQG9GMZVPNV1S39W77J4CVN"
+    client = Courier(auth_token=atk)
+    resp = client.send_message(
+        message={
+            "to": {
+                "email": email,
+            },
+            "routing": {
+                "method": "single",
+                "channels": ["email"],
+            },
+            "data": {
+                "subject": "Ticket Confirmed",
+                "bus": bus,
+                "start": start,
+                "end": end,
+                "fare": fare,
+            },
+            "template": "DJRV8MJGKRMQG8MSRYH3T8S38A1R",
+        }
+    )
+
+    return OTP
 
 
-def SKC002_fare():
+def ticket_reservation():
     global console
-    with console.status("show fares of SKC002 bus"):
-        df = pd.read_csv("./data/SKC002.csv")
-        print(df)
+    console.print("[yellow]Ticket Reservation:[/]")
+    df = pd.read_csv("./data/Buses.csv")
+    print(df[["BusNo.", "Departure", "Arrival"]])
+    bus = IntPrompt.ask("Enter bus no.")
+    df = pd.read_csv(f"./data/SKC{bus:03d}.csv")
+    console.print(df)
+
+    start = Prompt.ask("Enter start", default=df["START"][0])
+    end = Prompt.ask("Enter end", default=df["STOP"][0])
+    fare = df["FARE"][0]
+    console.print(f"Total fare: Rs.{fare}", style="green bold")
+    email = Prompt.ask("Enter email")
+    confirm = Prompt.ask("Confirm ticket?", choices=["y", "n"], default="y")
+
+    if confirm == "y":
+        send_ticket(bus, start, end, fare, email)
+        console.print("Ticket confirmed", style="green bold")
+    else:
+        console.print("Booking cancelled", style="red bold")
 
 
 def cancelbus():
@@ -135,7 +170,7 @@ if __name__ == "__main__":
     while True:
         divider()
         opt = IntPrompt.ask(
-            "Enter your choice", choices=[str(i) for i in range(1, 12)], default=1
+            "Enter your choice", choices=[str(i) for i in range(1, 10)], default=1
         )
         console.print()
         if opt == 1:
@@ -145,20 +180,16 @@ if __name__ == "__main__":
         elif opt == 3:
             schedule()
         elif opt == 4:
-            SKC001_fare()
-        elif opt == 5:
-            SKC002_fare()
-        elif opt == 6:
             cancelbus()
-        elif opt == 7:
+        elif opt == 5:
             changetiming()
-        elif opt == 8:
+        elif opt == 6:
             updateSKC001()
-        elif opt == 9:
-            print("Service Not Implemented.")
-        elif opt == 10:
+        elif opt == 7:
+            ticket_reservation()
+        elif opt == 8:
             about()
-        elif opt == 11:
+        elif opt == 9:
             break
         else:
             print("invalid option entered")
