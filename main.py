@@ -90,10 +90,6 @@ def send_ticket(bus: str, start: str, end: str, fare: int, email: str) -> None:
             "to": {
                 "email": email,
             },
-            "routing": {
-                "method": "single",
-                "channels": ["email"],
-            },
             "data": {
                 "subject": "Ticket Confirmed",
                 "bus": bus,
